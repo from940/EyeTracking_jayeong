@@ -54,17 +54,14 @@ class GazeTracking(object):
         frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
         #dlib의 정면 얼굴 검출기
         faces = self._face_detector(frame)
-
         try:
             landmarks = self._predictor(frame, faces[0])
             self.eye_left = Eye(frame, landmarks, 0, self.calibration)
             self.eye_right = Eye(frame, landmarks, 1, self.calibration)
-
-
-
         except IndexError:
             self.eye_left = None
             self.eye_right = None
+
 
     def refresh(self, frame):
         """Refreshes the frame and analyzes it.

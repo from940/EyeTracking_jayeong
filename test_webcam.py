@@ -26,6 +26,52 @@ while True:
     image_cvt = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     cv2.imshow('image_cvt', image_cvt)
 
+    """
+    얼굴 인식
+    """
+    image_cvt_face_detector = image_cvt.copy()
+    faces = face_detector(image_cvt_face_detector)
+    try:
+        cv2.rectangle(image_cvt_face_detector, (faces[0].left(), faces[0].top()), (faces[0].right(), faces[0].bottom()),
+                      (0, 0, 255), 2)
+    except:
+        pass
+    cv2.imshow('face_detector', image_cvt_face_detector)
+
+    """
+    얼굴 랜드마크 인식 eye
+    face detecting만 되면 인식된다.
+
+    eye.origin
+    eye.center 
+    """
+    height, width = image_cvt_face_detector.shape[:2]
+    black_frame = np.zeros((height, width), np.uint8)
+    mask = np.full((height, width), 255, np.uint8)
+
+    try:
+        landmarks = predictor(image_cvt_face_detector, faces[0])
+
+        region_left = np.array([(landmarks.part(point).x, landmarks.part(point).y) for point in LEFT_EYE_POINTS])
+        region_left = region_left.astype(np.int32)
+
+        region_right = np.array([(landmarks.part(point).x, landmarks.part(point).y) for point in RIGHT_EYE_POINTS])
+        region_right = region_right.astype(np.int32)
+
+        cv2.fillPoly(mask, [region_left], (0, 0, 0))
+        cv2.fillPoly(mask, [region_right], (0, 0, 0))
+    except:
+        pass
+
+    face_frame = image_cvt.copy()
+    eye_frame = cv2.bitwise_not(black_frame, face_frame, mask=mask)
+    cv2.imshow('eye_frame', eye_frame)
+
+
+    """
+    eye_frame 받아서 pupil 추적
+    pupil.x, pupil.y 추적 과정
+    """
     #filtering
     image_filtered = cv2.bilateralFilter(image_cvt, 10, 15, 15)
     cv2.imshow('image_filtered', image_filtered)
@@ -42,42 +88,9 @@ while True:
     #윤곽선 검출
     contours, hierarchy = cv2.findContours(image_thresh_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-    """
-    얼굴 인식
-    """
-    image_cvt_face_detector = image_cvt.copy()
-    faces = face_detector(image_cvt_face_detector)
-    try : cv2.rectangle(image_cvt_face_detector, (faces[0].left(), faces[0].top()), (faces[0].right(), faces[0].bottom()), (0, 0, 255), 2)
-    except : pass
-    cv2.imshow('face_detector', image_cvt_face_detector)
 
     """
-    얼굴 랜드마크 인식 eye
-    """
-    height, width = image_cvt.shape[:2]
-    black_frame = np.zeros((height, width), np.uint8)
-    mask = np.full((height, width), 255, np.uint8)
-
-    try :
-        landmarks = predictor(image_cvt_face_detector, faces[0])
-
-        region_left = np.array([(landmarks.part(point).x, landmarks.part(point).y) for point in LEFT_EYE_POINTS])
-        region_left = region_left.astype(np.int32)
-
-        region_right = np.array([(landmarks.part(point).x, landmarks.part(point).y) for point in RIGHT_EYE_POINTS])
-        region_right = region_right.astype(np.int32)
-
-        cv2.fillPoly(mask, [region_left], (0, 0, 0))
-        cv2.fillPoly(mask, [region_right], (0, 0, 0))
-    except :
-        pass
-
-    eye = cv2.bitwise_not(black_frame, mask=mask)
-    cv2.imshow('landmarks_eye', eye)
-
-
-    """
-    text
+    좌표 추적
     """
     frame_coords = frame.copy()
     gaze.refresh(frame_coords)
