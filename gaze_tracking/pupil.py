@@ -126,34 +126,4 @@ class Pupil(object):
         except (IndexError, ZeroDivisionError):
             pass
 
-    def return_contours(self, eye_frame):
-        """
-        Detects the iris and return contours
-        :param eye_frame (numpy.ndarray): Frame containing an eye and nothing else
-        :return: contours 윤곽선 : numpy 구조 배열로 검출된 윤곽선의 지점들
-        """
-        self.iris_frame = self.image_processing(eye_frame, self.threshold)
-
-        contours, _ = cv2.findContours(self.iris_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[-2:]
-        contours = sorted(contours, key=cv2.contourArea)
-
-        return contours
-
-
-    def draw_contours(self, eye_frame):
-        """
-        Detects the iris and draw contours on image
-        :param eye_frame:
-        :return:
-        """
-        self.iris_frame = self.image_processing(eye_frame, self.threshold)
-        contours, hierarchy = cv2.findContours(self.iris_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        contours = sorted(contours, key=cv2.contourArea)
-
-        for i in range(len(contours)):
-            cv2.drawContours(eye_frame, [contours[i]], 0, (0, 0, 255), 2)
-            cv2.putText(eye_frame, str(i), tuple(contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0, 255, 0), 1)
-            print(i, hierarchy[0][i])
-            cv2.imshow("draw contours", eye_frame)
-            cv2.waitKey(0)
 

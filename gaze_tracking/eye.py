@@ -14,6 +14,15 @@ class Eye(object):
     LEFT_EYE_POINTS = [36, 37, 38, 39, 40, 41]
     RIGHT_EYE_POINTS = [42, 43, 44, 45, 46, 47]
 
+    """
+    face points 나중에 분리하기
+    """
+    FACE_TOP = [21, 22]
+    FACE_BOTTOM = [7, 8, 9]
+    FACE_LETF = [0, 1, 2, 3]
+    FACE_RIGHT = [13, 14, 15, 16]
+
+
 
     def __init__(self, original_frame, landmarks, side, calibration):
         self.frame = None
@@ -23,6 +32,7 @@ class Eye(object):
         self.landmark_points = None
 
         self._analyze(original_frame, landmarks, side, calibration)
+
         """
         landmarks = self._predictor(frame, faces[0])
         self._predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
@@ -40,6 +50,8 @@ class Eye(object):
         y = int((p1.y + p2.y) / 2)
         return (x, y)
 
+    def face(self, frame, landmarks, points):
+        pass
 
 
     def _isolate(self, frame, landmarks, points):
@@ -77,6 +89,12 @@ class Eye(object):
         eye = cv2.bitwise_not(black_frame, frame.copy(), mask=mask)
 
         # Cropping on the eye
+        """
+        region_left[:, 0] : 왼쪽 눈 영역의 x좌표
+        region_left[:, 1] : 왼쪽 눈 영역의 y좌표
+        
+        """
+
         margin = 5
         min_x = np.min(region[:, 0]) - margin
         max_x = np.max(region[:, 0]) + margin
@@ -84,6 +102,8 @@ class Eye(object):
         max_y = np.max(region[:, 1]) + margin
 
         self.frame = eye[min_y:max_y, min_x:max_x]
+
+        self.origin_full = [(min_x, max_x) , (min_y, max_y)]
         self.origin = (min_x, min_y)
 
         height, width = self.frame.shape[:2]

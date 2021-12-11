@@ -2,6 +2,7 @@
 Demonstration of the GazeTracking library.
 Check the README.md for complete documentation.
 """
+from datetime import datetime
 import cv2
 from gaze_tracking import GazeTracking
 
@@ -21,8 +22,6 @@ while True:
     """
     _, frame = webcam.read()
 
-    # We send this frame to GazeTracking to analyze it
-    #gaze.refresh -> gaze._analyze
     gaze.refresh(frame)
 
     frame = gaze.annotated_frame()
@@ -41,8 +40,9 @@ while True:
 
     left_pupil = gaze.pupil_left_coords()
     right_pupil = gaze.pupil_right_coords()
-    cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+
+    print(datetime.now().strftime('%H:%M:%S.%f'), left_pupil, right_pupil)
+    #19:19:35.348639  left x, y (190, 274) right x, y (267, 278)
 
     cv2.imshow("Demo", frame)
 
