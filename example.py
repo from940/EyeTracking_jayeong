@@ -22,12 +22,11 @@ while True:
     _, frame = webcam.read()
 
     # We send this frame to GazeTracking to analyze it
-    #gaze.refresh -> gaze._analyze
     gaze.refresh(frame)
-
     frame = gaze.annotated_frame()
-    text = ""
 
+
+    text = ""
     if gaze.is_blinking():
         text = "Blinking"
     elif gaze.is_right():

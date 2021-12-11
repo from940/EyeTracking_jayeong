@@ -10,19 +10,8 @@ class Eye(object):
     initiates the pupil detection.
     """
 
-
     LEFT_EYE_POINTS = [36, 37, 38, 39, 40, 41]
     RIGHT_EYE_POINTS = [42, 43, 44, 45, 46, 47]
-
-    """
-    face points 나중에 분리하기
-    """
-    FACE_TOP = [21, 22]
-    FACE_BOTTOM = [7, 8, 9]
-    FACE_LETF = [0, 1, 2, 3]
-    FACE_RIGHT = [13, 14, 15, 16]
-
-
 
     def __init__(self, original_frame, landmarks, side, calibration):
         self.frame = None
@@ -50,8 +39,6 @@ class Eye(object):
         y = int((p1.y + p2.y) / 2)
         return (x, y)
 
-    def face(self, frame, landmarks, points):
-        pass
 
 
     def _isolate(self, frame, landmarks, points):
@@ -62,7 +49,6 @@ class Eye(object):
             landmarks (dlib.full_object_detection): Facial landmarks for the face region
             points (list): Points of an eye (from the 68 Multi-PIE landmarks)
         """
-
         region = np.array([(landmarks.part(point).x, landmarks.part(point).y) for point in points])
         region = region.astype(np.int32)
         self.landmark_points = region
@@ -162,4 +148,6 @@ class Eye(object):
             calibration.evaluate(self.frame, side)
 
         threshold = calibration.threshold(side)
+
+        #self.frame : 눈 영역 margin=5 로 크롭한 영상. 흑백에 mask
         self.pupil = Pupil(self.frame, threshold)
